@@ -11,7 +11,7 @@ export default function ManageUsers({ onUserDeleted }) {
   // ---------------------------------
 
   const fetchUsers = () => {
-    fetch("https://ai-security-backend-wyyl.onrender.com/api/uers")
+    fetch("https://ai-security-backend-wyyl.onrender.com/api/users")
       .then(res => res.json())
       .then(data => {
         if (data.status === "success") {
@@ -38,7 +38,7 @@ export default function ManageUsers({ onUserDeleted }) {
     setErrorMessage(""); // Clear old errors
 
     try {
-      const response = await fetch(`https://ai-security-backend-wyyl.onrender.com/api/uers/${selectedUser}`, {
+      const response = await fetch(`https://ai-security-backend-wyyl.onrender.com/api/users/${selectedUser}`, {
         method: "DELETE",
         headers: {
           "X-Admin-Password": adminPassword // Send the password secretly in the headers!

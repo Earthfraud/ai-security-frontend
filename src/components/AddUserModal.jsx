@@ -51,7 +51,7 @@ export default function AddUserModal({ isOpen, onClose }) {
 
     try {
       // Send the name and the snapshot to our Python backend
-      const response = await fetch("https://ai-security-backend-wyyl.onrender.com/api/uers", {
+      const response = await fetch("https://ai-security-backend-wyyl.onrender.com/api/users", {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: name, image: base64Image })

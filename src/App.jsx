@@ -20,7 +20,7 @@ export default function App() {
   const [aiStrictness, setAiStrictness] = useState(85);
 
   const fetchDatabaseHistory = () => {
-    fetch("https://ai-security-backend-wyyl.onrender.com/api/uers")
+    fetch("https://ai-security-backend-wyyl.onrender.com/api/users")
       .then(res => res.json())
       .then(data => {
         if (data.status === "success" && data.logs) {
@@ -58,7 +58,7 @@ export default function App() {
   };
 
   const fetchRegisteredCount = () => {
-    fetch("https://ai-security-backend-wyyl.onrender.com/api/uers")
+    fetch("https://ai-security-backend-wyyl.onrender.com/api/users")
       .then(res => res.json())
       .then(data => {
         if (data.status === "success") {
