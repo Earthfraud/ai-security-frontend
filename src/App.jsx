@@ -20,17 +20,19 @@ export default function App() {
   const [aiStrictness, setAiStrictness] = useState(85);
 
   const fetchDatabaseHistory = () => {
-    fetch("https://ai-security-backend-wyyl.onrender.com/api/users")
+    // FIXED: Now points to /api/logs
+    fetch("https://ai-security-backend-wyyl.onrender.com/api/logs")
       .then(res => res.json())
       .then(data => {
-        if (data.status === "success" && data.logs) {
-          const formattedLogs = data.logs.map(log => ({
+        // FIXED: The logs route returns an array directly
+        if (data && Array.isArray(data)) {
+          const formattedLogs = data.map(log => ({
             id: log.id,
             name: log.name,
             status: log.status,
-            time: log.timestamp,
+            time: log.time, 
             date: log.date,
-            match: log.match_confidence,
+            match: log.match,
             image: null 
           }));
           
@@ -58,10 +60,11 @@ export default function App() {
   };
 
   const fetchRegisteredCount = () => {
+    // FIXED: Now points to /api/users
     fetch("https://ai-security-backend-wyyl.onrender.com/api/users")
       .then(res => res.json())
       .then(data => {
-        if (data.status === "success") {
+        if (data.status === "success" && data.users) {
           setRegisteredCount(data.users.length); 
         }
       })
@@ -155,7 +158,6 @@ export default function App() {
         <ManageUsers onUserDeleted={fetchRegisteredCount} />
       )}
 
-      {/* --- THE UPDATED SAFE SETTINGS PAGE --- */}
       {activeTab === 'settings' && (
         <div className="animate-fade-in-down">
           <div className="mb-6">
@@ -164,7 +166,6 @@ export default function App() {
           </div>
 
           <div className="space-y-6 max-w-3xl">
-            {/* AI Strictness Slider */}
             <div className="p-6 bg-white rounded-2xl border border-slate-200 shadow-sm">
               <div className="mb-4">
                 <h3 className="text-lg font-bold text-slate-800">🧠 AI Confidence Threshold: {aiStrictness}%</h3>
@@ -181,7 +182,6 @@ export default function App() {
           </div>
         </div>
       )}
-      {/* ----------------------------- */}
 
       <AddUserModal isOpen={isModalOpen} onClose={() => {
         setIsModalOpen(false);

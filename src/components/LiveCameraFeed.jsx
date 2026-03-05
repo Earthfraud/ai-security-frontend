@@ -33,8 +33,8 @@ export default function LiveCameraFeed({ onFaceDetected }) {
         // Convert to base64 string
         const base64Image = canvasRef.current.toDataURL("image/jpeg");
 
-        // Send to FastAPI Backend
-        fetch("https://ai-security-backend-wyyl.onrender.com/api/users", {
+        // FIXED: Send to FastAPI Backend's /api/recognize route
+        fetch("https://ai-security-backend-wyyl.onrender.com/api/recognize", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ image: base64Image })
@@ -42,7 +42,6 @@ export default function LiveCameraFeed({ onFaceDetected }) {
         .then(res => res.json())
         .then(data => {
           if (data.faces_found && data.faces_found > 0) {
-            // NEW: Pass the image thumbnail directly back to App.jsx!
             onFaceDetected({ ...data, frameImage: base64Image });
           }
         })

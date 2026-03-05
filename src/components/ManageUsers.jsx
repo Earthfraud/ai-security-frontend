@@ -3,14 +3,14 @@ import { useState, useEffect } from "react";
 export default function ManageUsers({ onUserDeleted }) {
   const [users, setUsers] = useState([]);
   
-  // --- NEW: Password Modal State ---
+  // Password Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [adminPassword, setAdminPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  // ---------------------------------
 
   const fetchUsers = () => {
+    // FIXED: Fetch from /api/users
     fetch("https://ai-security-backend-wyyl.onrender.com/api/users")
       .then(res => res.json())
       .then(data => {
@@ -25,7 +25,6 @@ export default function ManageUsers({ onUserDeleted }) {
     fetchUsers();
   }, []);
 
-  // Opens the popup and remembers WHICH user we are trying to delete
   const initiateRevoke = (userName) => {
     setSelectedUser(userName);
     setErrorMessage("");
@@ -33,27 +32,25 @@ export default function ManageUsers({ onUserDeleted }) {
     setIsModalOpen(true);
   };
 
-  // Sends the password to Python for verification
   const confirmRevoke = async () => {
-    setErrorMessage(""); // Clear old errors
+    setErrorMessage(""); 
 
     try {
+      // FIXED: Delete from /api/users/{name}
       const response = await fetch(`https://ai-security-backend-wyyl.onrender.com/api/users/${selectedUser}`, {
         method: "DELETE",
         headers: {
-          "X-Admin-Password": adminPassword // Send the password secretly in the headers!
+          "X-Admin-Password": adminPassword 
         }
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        // Python rejected the password (401 error)
         setErrorMessage(data.detail || "Wrong password!");
         return;
       }
 
-      // If it passes, close the modal and refresh the list
       setIsModalOpen(false);
       fetchUsers();
       if (onUserDeleted) onUserDeleted();
@@ -111,7 +108,6 @@ export default function ManageUsers({ onUserDeleted }) {
         </table>
       </div>
 
-      {/* --- PASSWORD AUTHENTICATION MODAL --- */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-2xl w-96 shadow-xl">
@@ -128,7 +124,6 @@ export default function ManageUsers({ onUserDeleted }) {
               className="w-full p-3 border border-slate-300 rounded-lg mb-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
             
-            {/* Show error message if password is wrong */}
             {errorMessage && <p className="text-red-500 text-sm font-bold mb-4">❌ {errorMessage}</p>}
 
             <div className="flex gap-3 mt-4">
@@ -148,8 +143,6 @@ export default function ManageUsers({ onUserDeleted }) {
           </div>
         </div>
       )}
-      {/* -------------------------------------- */}
-
     </div>
   );
 }
