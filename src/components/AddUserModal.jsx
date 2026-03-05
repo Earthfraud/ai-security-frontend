@@ -8,7 +8,6 @@ export default function AddUserModal({ isOpen, onClose }) {
   const [isRegistering, setIsRegistering] = useState(false);
 
   useEffect(() => {
-    // Only turn on this mini-camera if the modal is actually open
     let stream = null;
     if (isOpen) {
       navigator.mediaDevices.getUserMedia({ video: true })
@@ -19,7 +18,6 @@ export default function AddUserModal({ isOpen, onClose }) {
         .catch((err) => console.error("Modal camera error:", err));
     }
 
-    // Turn off the mini-camera when the modal closes
     return () => {
       if (stream) {
         stream.getTracks().forEach(track => track.stop());
@@ -27,7 +25,7 @@ export default function AddUserModal({ isOpen, onClose }) {
     };
   }, [isOpen]);
 
-  if (!isOpen) return null; // Don't render anything if closed
+  if (!isOpen) return null;
 
   const handleRegister = async () => {
     if (!name.trim()) {
@@ -38,7 +36,6 @@ export default function AddUserModal({ isOpen, onClose }) {
     setIsRegistering(true);
     setStatus("Capturing face...");
 
-    // Take a snapshot
     const video = videoRef.current;
     const canvas = canvasRef.current;
     const context = canvas.getContext('2d');
@@ -50,8 +47,8 @@ export default function AddUserModal({ isOpen, onClose }) {
     const base64Image = canvas.toDataURL('image/jpeg');
 
     try {
-      // Send the name and the snapshot to our Python backend
-      const response = await fetch("https://ai-security-backend-wyyl.onrender.com/api/register", {
+      // 🛑 FIXED: Pointing to /api/users to match the backend!
+      const response = await fetch("https://ai-security-backend-wyyl.onrender.com/api/users", {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: name, image: base64Image })
@@ -59,16 +56,17 @@ export default function AddUserModal({ isOpen, onClose }) {
 
       const data = await response.json();
       
-      if (data.status === "success") {
+      if (response.ok && data.status === "success") {
         setStatus("✅ Successfully registered: " + name);
         setTimeout(() => {
-          onClose(); // Close modal after success
+          onClose(); 
           setName("");
           setStatus("");
           setIsRegistering(false);
         }, 2000);
       } else {
-        setStatus("❌ Failed: " + data.message);
+        // Updated to catch standard FastAPI errors safely
+        setStatus("❌ Failed: " + (data.detail || data.message || "Server Error"));
         setIsRegistering(false);
       }
     } catch (error) {
@@ -82,7 +80,6 @@ export default function AddUserModal({ isOpen, onClose }) {
     <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center z-50">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col">
         
-        {/* Header */}
         <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
           <h3 className="text-lg font-bold text-slate-800">Register New Face</h3>
           <button onClick={onClose} className="text-slate-400 hover:text-red-500 font-bold text-xl">
@@ -90,13 +87,11 @@ export default function AddUserModal({ isOpen, onClose }) {
           </button>
         </div>
 
-        {/* Body */}
         <div className="p-6 space-y-4">
           <div className="relative bg-black rounded-lg overflow-hidden aspect-video border border-slate-300">
             <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
             <canvas ref={canvasRef} className="hidden" />
             
-            {/* Alignment Guide */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div className="w-32 h-40 border-2 border-dashed border-white/50 rounded-full"></div>
             </div>
@@ -121,7 +116,6 @@ export default function AddUserModal({ isOpen, onClose }) {
           )}
         </div>
 
-        {/* Footer */}
         <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-3">
           <button 
             onClick={onClose} 
